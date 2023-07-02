@@ -74,7 +74,22 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
+        liveGhostPositions = [newGhostStates[i].getPosition() for i in range(len(newGhostStates)) if newScaredTimes[i] == 0]
+        if (newPos in liveGhostPositions):
+            return -500
+        eval = 0
+        if successorGameState.getNumFood() == 0:
+            return 500
+
+        man = lambda x, y: abs(x[0]-y[0]) + abs(x[1]-y[1])
+        for i in range(len(liveGhostPositions)):
+            eval -= 100/(man(newPos, liveGhostPositions[i]) ** 5)
+        for n in newFood.asList():
+            eval += 1/man(newPos, n)
+        if successorGameState.getNumFood() < currentGameState.getNumFood():
+            eval += 20
+        eval += random.gauss(0, 0.5) # break ties
+        return eval
         return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState: GameState):
@@ -135,7 +150,48 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
+        numAgents = gameState.getNumAgents()
+        
+        def helperBase(state, agentIndex):
+            acts = state.getLegalActions(agentIndex)
+            if len(acts) == 0:
+                return 0, self.evaluationFunction(state)
+            scores = [self.evaluationFunction(state.generateSuccessor(agentIndex, acts[i])) for i in range(len(acts))]
+            if agentIndex == 0:
+                score = max(scores)
+                act = acts[scores.index(score)]
+            else:
+                score = min(scores)
+                act = acts[scores.index(score)]
+            return act, score
+            
+        def helperRecursive(state, agentIndex, level):
+            acts = state.getLegalActions(agentIndex)
+            successors = [state.generateSuccessor(agentIndex, acts[i]) for i in range(len(acts))]
+            if agentIndex == 0:
+                fn = max
+            else: 
+                fn = min
+            if len(acts) == 0:
+                return 0, self.evaluationFunction(state)
+            if level == 0:
+                if agentIndex == numAgents - 1:
+                    return helperBase(state, agentIndex)
+                else:
+                    scores = [helperRecursive(successors[i], agentIndex+1, level)[1] for i in range(len(acts))]
+                    ind = scores.index(fn(scores))
+                    return acts[ind], scores[ind]
+            else:
+                if agentIndex == numAgents - 1:
+                    scores = [helperRecursive(successors[i], 0, level-1)[1] for i in range(len(acts))]
+                    ind = scores.index(fn(scores))
+                    return acts[ind], scores[ind]
+                else:
+                    scores = [helperRecursive(successors[i], agentIndex+1, level)[1] for i in range(len(acts))]
+                    ind = scores.index(fn(scores))
+                    return acts[ind], scores[ind]
+
+        return helperRecursive(gameState, 0, self.depth-1)[0]
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -147,7 +203,63 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
+        # numAgents = gameState.getNumAgents()
+        
+        # def helperBase(state, agentIndex, rootscore):
+        #     acts = state.getLegalActions(agentIndex)
+        #     if len(acts) == 0:
+        #         return 0, self.evaluationFunction(state)
+        #     if agentIndex == 0:
+        #         fn = lambda x, y: x > y
+        #         bestscore = 10000000
+        #     else:
+        #         fn = lambda x, y: x < y
+        #         bestscore = -10000000
+        #     bestind = 0
+        #     for i in range(len(acts)):
+        #         newstate = state.generateSuccessor(agentIndex, acts[i])
+        #         newscore = self.evaluationFunction(newstate)
+        #         if fn(newscore, rootscore):
+        #             return acts[i], rootscore
+        #         if fn(newscore, bestscore):
+        #             bestscore = newscore
+        #             bestind = i  
+        #     return acts[bestind], bestscore
+            
+        # def helperRecursive(state, agentIndex, rootscore, level):
+        #     acts = state.getLegalActions(agentIndex)
+        #     if agentIndex == 0:
+        #         fn = lambda x, y: x > y
+        #         bestscore = 10000000
+        #     else: 
+        #         fn = lambda x, y: x < y
+        #         bestscore = -10000000
+        #     if len(acts) == 0:
+        #         return 0, self.evaluationFunction(state)
+        #     bestind = 0
+        #     if agentIndex == numAgents - 1:
+        #         if level == 0:
+        #             return helperBase(state, agentIndex, rootscore)
+        #         for i in range(len(acts)):
+        #             newstate = state.generateSuccessor(agentIndex, acts[i])
+        #             newscore = helperRecursive(newstate, 0, rootscore, level - 1)[1]
+        #             if fn(newscore, rootscore):
+        #                 return acts[i], rootscore
+        #             if fn(newscore, bestscore):
+        #                 bestscore = newscore
+        #                 bestind = i
+        #     for i in range(len(acts)):
+        #             newstate = state.generateSuccessor(agentIndex, acts[i])
+        #             newscore = helperRecursive(newstate, agentIndex + 1, rootscore, level)[1]
+        #             if fn(newscore, rootscore):
+        #                 return acts[i], rootscore
+        #             if fn(newscore, bestscore):
+        #                 bestscore = newscore
+        #                 bestind = i
+        #     return acts[bestind], bestscore
+            
+
+        # return helperRecursive(gameState, 0, 10000000, self.depth-1)[0]
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
