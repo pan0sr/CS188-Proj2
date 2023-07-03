@@ -272,13 +272,63 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState: GameState):
         """
-        Returns the expectimax action using self.depth and self.evaluationFunction
-
-        All ghosts should be modeled as choosing uniformly at random from their
-        legal moves.
+        Returns the expetimax action from the current gameState using self.depth
+        and self.evaluationFunction.
         """
-        "*** YOUR CODE HERE ***"
+        numAgents = gameState.getNumAgents()
+        
+        def helperBase(state, agentIndex):
+            acts = state.getLegalActions(agentIndex)
+            if len(acts) == 0:
+                return 0, self.evaluationFunction(state)
+            scores = [self.evaluationFunction(state.generateSuccessor(agentIndex, acts[i])) for i in range(len(acts))]
+            if agentIndex == 0:
+                score = max(scores)
+                act = acts[scores.index(score)]
+            else:
+                fn = lambda x: sum(x)/len(x)
+                score = fn(scores) 
+                act = 0
+            return act, score
+            
+        def helperRecursive(state, agentIndex, level):
+            acts = state.getLegalActions(agentIndex)
+            successors = [state.generateSuccessor(agentIndex, acts[i]) for i in range(len(acts))]
+            if agentIndex == 0:
+                fn = max
+            else: 
+                fn = lambda x: sum(x)/len(x)
+            if len(acts) == 0:
+                return 0, self.evaluationFunction(state)
+            act = 0
+            if level == 0:
+                if agentIndex == numAgents - 1:
+                    return helperBase(state, agentIndex)
+                else:
+                    scores = [helperRecursive(successors[i], agentIndex+1, level)[1] for i in range(len(acts))]
+                    score = fn(scores)
+                    if (agentIndex == 0):
+                        act = acts[scores.index(score)]
+                    return act, score
+            else:
+                if agentIndex == numAgents - 1:
+                    scores = [helperRecursive(successors[i], 0, level-1)[1] for i in range(len(acts))]
+                    score = fn(scores)
+                    if (agentIndex == 0):
+                        act = acts[scores.index(score)]
+                    return act, score
+                else:
+                    scores = [helperRecursive(successors[i], agentIndex+1, level)[1] for i in range(len(acts))]
+                    score = fn(scores)
+                    if (agentIndex == 0):
+                        act = acts[scores.index(score)]
+                    return act, score
+
+        return helperRecursive(gameState, 0, self.depth-1)[0]
         util.raiseNotDefined()
+
+
+
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
@@ -288,8 +338,43 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    successorGameState = currentGameState
+    newPos = successorGameState.getPacmanPosition()
+    newFood = successorGameState.getFood()
+    newGhostStates = successorGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
+    liveGhostPositions = []
+    scaredGhostPositions = []
+    [newGhostStates[i].getPosition() for i in range(len(newGhostStates)) if newScaredTimes[i] == 0]
+
+    for i in range(len(newGhostStates)):
+        if newScaredTimes[i] > 1:
+            scaredGhostPositions.append(newGhostStates[i].getPosition())
+        else:
+            liveGhostPositions.append(newGhostStates[i].getPosition())
+
+    eval = scoreEvaluationFunction(currentGameState)
+    # if successorGameState.getNumFood() == 0:
+    #     return 10000
+
+    man = lambda x, y: abs(x[0]-y[0]) + abs(x[1]-y[1])
+    for i in range(len(liveGhostPositions)):
+        if man(newPos,liveGhostPositions[i]) < 1:
+            eval -= 100
+        eval -= len(currentGameState.getCapsules()) * 20
+    if newPos in scaredGhostPositions:
+        eval += 10000
+    for i in range(len(scaredGhostPositions)):
+        eval += 20/man(newPos,scaredGhostPositions[i])
+   
+    eval -= len(currentGameState.getCapsules()) * 20
+
+    for n in newFood.asList():
+        eval += 20/man(newPos, n)
+    eval -= 20 * successorGameState.getNumFood()
+
+    return eval
 # Abbreviation
 better = betterEvaluationFunction
 
