@@ -208,37 +208,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
 
-        # def recursiveBase(state : GameState,agentIndex):
-        #     numAgents = state.getNumAgents()
-        #     #Find pacmans next possible action
-        #     acts = state.getLegalActions(0)
-        #     successors = [state.generateSuccessor(0, acts[i]) for i in range(len(acts))]
-        #     for future in successors:
-        #         if (agentIndex == numAgents - 1):
-        #             if (fnParent(self.evaluationFunction(future),parentScore)==parentScore):
-        #                 return parentScore
-        #             else:
-
-
-        # def recursiveBody(state : GameState, agentIndex, parentScore, depth):
-        #     if agentIndex==0:
-        #         value = -9999999
-        #         acts = state.getLegalActions(agentIndex)
-        #         for move in acts:
-        #             child = state.generateSuccessor(agentIndex,move)
-        #             value = max(value,recursiveBody(child,agentIndex+1,value,depth))
-        #             if value > parentScore:
-        #                 return value
-        #     else:
-        #         value = 99999999
-        #         for move in acts:
-        #             child = state.generateSuccessor(agentIndex,move)
-        #             value = min(value,recursiveBody(child,agentIndex+1,value,depth))
-        #             if value < parentScore:
-        #                 return value
-                    
-        ####################################################################################
-
         def maxAgent(state:GameState,alpha,beta,agentIndex,depth):
             best_move = None
             value = -999999999
@@ -294,23 +263,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                     
 
 
-            
-
-                
-
-
-
-
-
-
-
-
-
-        '''maximizer pruning'''
-        '''minimizer pruning'''
-
-
-        util.raiseNotDefined()
+    
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -340,66 +293,3 @@ def betterEvaluationFunction(currentGameState: GameState):
 # Abbreviation
 better = betterEvaluationFunction
 
-
-
-
-
-
-
-        
-        
-        # def helperBase(state, agentIndex, rootscore):
-        #     acts = state.getLegalActions(agentIndex)
-        #     if len(acts) == 0:
-        #         return 0, self.evaluationFunction(state)
-        #     if agentIndex == 0:
-        #         fn = lambda x, y: x > y
-        #         bestscore = 10000000
-        #     else:
-        #         fn = lambda x, y: x < y
-        #         bestscore = -10000000
-        #     bestind = 0
-        #     for i in range(len(acts)):
-        #         newstate = state.generateSuccessor(agentIndex, acts[i])
-        #         newscore = self.evaluationFunction(newstate)
-        #         if fn(newscore, rootscore):
-        #             return acts[i], rootscore
-        #         if fn(newscore, bestscore):
-        #             bestscore = newscore
-        #             bestind = i  
-        #     return acts[bestind], bestscore
-            
-        # def helperRecursive(state, agentIndex, rootscore, level):
-        #     acts = state.getLegalActions(agentIndex)
-        #     if agentIndex == 0:
-        #         fn = lambda x, y: x > y
-        #         bestscore = 10000000
-        #     else: 
-        #         fn = lambda x, y: x < y
-        #         bestscore = -10000000
-        #     if len(acts) == 0:
-        #         return 0, self.evaluationFunction(state)
-        #     bestind = 0
-        #     if agentIndex == numAgents - 1:
-        #         if level == 0:
-        #             return helperBase(state, agentIndex, rootscore)
-        #         for i in range(len(acts)):
-        #             newstate = state.generateSuccessor(agentIndex, acts[i])
-        #             newscore = helperRecursive(newstate, 0, rootscore, level - 1)[1]
-        #             if fn(newscore, rootscore):
-        #                 return acts[i], rootscore
-        #             if fn(newscore, bestscore):
-        #                 bestscore = newscore
-        #                 bestind = i
-        #     for i in range(len(acts)):
-        #             newstate = state.generateSuccessor(agentIndex, acts[i])
-        #             newscore = helperRecursive(newstate, agentIndex + 1, rootscore, level)[1]
-        #             if fn(newscore, rootscore):
-        #                 return acts[i], rootscore
-        #             if fn(newscore, bestscore):
-        #                 bestscore = newscore
-        #                 bestind = i
-        #     return acts[bestind], bestscore
-            
-
-        # return helperRecursive(gameState, 0, 10000000, self.depth-1)[0]
