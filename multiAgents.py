@@ -92,6 +92,10 @@ class ReflexAgent(Agent):
         return eval
         return successorGameState.getScore()
 
+
+
+
+
 def scoreEvaluationFunction(currentGameState: GameState):
     """
     This default evaluation function just returns the score of the state.
@@ -161,7 +165,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 score = max(scores)
                 act = acts[scores.index(score)]
             else:
-                score = min(scores)
+                score = min(scores) 
                 act = acts[scores.index(score)]
             return act, score
             
@@ -203,7 +207,146 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        # numAgents = gameState.getNumAgents()
+
+        # def recursiveBase(state : GameState,agentIndex):
+        #     numAgents = state.getNumAgents()
+        #     #Find pacmans next possible action
+        #     acts = state.getLegalActions(0)
+        #     successors = [state.generateSuccessor(0, acts[i]) for i in range(len(acts))]
+        #     for future in successors:
+        #         if (agentIndex == numAgents - 1):
+        #             if (fnParent(self.evaluationFunction(future),parentScore)==parentScore):
+        #                 return parentScore
+        #             else:
+
+
+        # def recursiveBody(state : GameState, agentIndex, parentScore, depth):
+        #     if agentIndex==0:
+        #         value = -9999999
+        #         acts = state.getLegalActions(agentIndex)
+        #         for move in acts:
+        #             child = state.generateSuccessor(agentIndex,move)
+        #             value = max(value,recursiveBody(child,agentIndex+1,value,depth))
+        #             if value > parentScore:
+        #                 return value
+        #     else:
+        #         value = 99999999
+        #         for move in acts:
+        #             child = state.generateSuccessor(agentIndex,move)
+        #             value = min(value,recursiveBody(child,agentIndex+1,value,depth))
+        #             if value < parentScore:
+        #                 return value
+                    
+        ####################################################################################
+
+        def maxAgent(state:GameState,alpha,beta,agentIndex,depth):
+            best_move = None
+            value = -999999999
+            acts = state.getLegalActions(0)
+            if (not acts):
+                return self.evaluationFunction(state),0
+            for move in acts:
+                successorsState = state.generateSuccessor(agentIndex,move)
+                new_value = max(value,minAgent(successorsState,alpha,beta,agentIndex+1,depth))
+                if new_value > value:
+                    value = new_value
+                    best_move = move
+                if value > beta:
+                    return value, 0
+                alpha = max(alpha,value)
+            return value, best_move
+        
+        def minAgent(state : GameState,alpha,beta, agentIndex,depth):
+            value = 999999999
+            acts = state.getLegalActions(agentIndex)
+            if (not acts):
+                return self.evaluationFunction(state)
+            if (agentIndex == state.getNumAgents() - 1):
+                if depth == 0:
+                    for move in acts:
+                        successorState = state.generateSuccessor(agentIndex,move)
+                        value = min(value,self.evaluationFunction(successorState))
+                        if value < alpha: 
+                            return value
+                        else:
+                            beta = min(beta,value)
+                    return value
+                else:
+                    for move in acts:
+                        successorState = state.generateSuccessor(agentIndex,move)
+                        value = min(value,maxAgent(successorState,alpha,beta,0,depth-1)[0])
+                        if value < alpha: 
+                            return value
+                        else:
+                            beta = min(beta,value)
+                    return value
+            for move in acts:
+                successorState = state.generateSuccessor(agentIndex,move)
+                value = min(value,minAgent(successorState,alpha,beta,agentIndex+1,depth))
+                if value < alpha: 
+                    return value
+                else:
+                    beta = min(beta,value)
+            return value
+        return maxAgent(gameState,-99999999,9999999,0,self.depth-1)[1]
+
+
+                    
+
+
+            
+
+                
+
+
+
+
+
+
+
+
+
+        '''maximizer pruning'''
+        '''minimizer pruning'''
+
+
+        util.raiseNotDefined()
+
+class ExpectimaxAgent(MultiAgentSearchAgent):
+    """
+      Your expectimax agent (question 4)
+    """
+
+    def getAction(self, gameState: GameState):
+        """
+        Returns the expectimax action using self.depth and self.evaluationFunction
+
+        All ghosts should be modeled as choosing uniformly at random from their
+        legal moves.
+        """
+        "*** YOUR CODE HERE ***"
+        util.raiseNotDefined()
+
+def betterEvaluationFunction(currentGameState: GameState):
+    """
+    Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
+    evaluation function (question 5).
+
+    DESCRIPTION: <write something here so we know what you did>
+    """
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
+
+# Abbreviation
+better = betterEvaluationFunction
+
+
+
+
+
+
+
+        
         
         # def helperBase(state, agentIndex, rootscore):
         #     acts = state.getLegalActions(agentIndex)
@@ -260,32 +403,3 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             
 
         # return helperRecursive(gameState, 0, 10000000, self.depth-1)[0]
-        util.raiseNotDefined()
-
-class ExpectimaxAgent(MultiAgentSearchAgent):
-    """
-      Your expectimax agent (question 4)
-    """
-
-    def getAction(self, gameState: GameState):
-        """
-        Returns the expectimax action using self.depth and self.evaluationFunction
-
-        All ghosts should be modeled as choosing uniformly at random from their
-        legal moves.
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
-def betterEvaluationFunction(currentGameState: GameState):
-    """
-    Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-    evaluation function (question 5).
-
-    DESCRIPTION: <write something here so we know what you did>
-    """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
-# Abbreviation
-better = betterEvaluationFunction
